@@ -1,0 +1,41 @@
+name: Deploy Frontend to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy frontend
+        run: |
+            ssh -T -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} bash << 'EOSSH'
+              set -e
+              echo "Connected to server: $(hostname)"
+              cd /home/azureuser
+
+              if [ ! -d "frontend" ]; then
+                echo "Cloning repo..."
+                git clone git@github-frontend:ClinixMapAI/frontend.git
+              fi
+
+              cd frontend
+              
+              git fetch --all
+              git reset --hard origin/main
+              git clean -fd
+
+              echo "Reloading server..."
+              sudo systemctl reload nginx
+            EOSSH
