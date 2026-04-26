@@ -17,6 +17,9 @@ export interface NearestFacility {
   location_source?: "precise" | "city_centroid";
   rating: string;
   quality_score: number | null;
+  medical_score?: number | null;
+  trust_flag?: string | null;
+  explanation?: string | null;
   year_established: number | null;
   description: string;
   procedure: string;

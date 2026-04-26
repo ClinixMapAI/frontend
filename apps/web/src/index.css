@@ -3,8 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Approx. height of compact sticky search panel (filters + textarea + padding). */
+    /* Allows one extra textarea line without clipping the last card. */
+    --dashboard-search-dock-height: 11.5rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --dashboard-search-dock-height: 10rem;
+    }
+  }
+
   html {
     height: 100%;
+    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }

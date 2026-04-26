@@ -116,7 +116,7 @@ export function AgentChat() {
               </span>
               <div>
                 <p className="font-display text-sm font-semibold text-ink-900 dark:text-ink-50">
-                  HackNation AI Agent
+                  ClinixAi Agent
                 </p>
                 <p className="text-[11px] text-ink-500 dark:text-ink-400">
                   Natural-language facility recommendations

@@ -42,8 +42,219 @@ export function getFacilitySpecialties(facility: Facility): string[] {
     .filter(Boolean);
 }
 
+function readNumberFromRaw(raw: Record<string, unknown>, keys: string[]): number | null {
+  const lower: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    lower[String(k).toLowerCase()] = v;
+  }
+  for (const k of keys) {
+    const v = lower[k.toLowerCase()];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() !== "") {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+  }
+  return null;
+}
+
+export function getMedicalScore(facility: Facility): number | null {
+  const direct = facility.medical_score;
+  if (typeof direct === "number" && Number.isFinite(direct)) return direct;
+  const raw = facility.raw as Record<string, unknown> | undefined;
+  if (raw) {
+    const n = readNumberFromRaw(raw, [
+      "medical_score",
+      "Medical_Score",
+      "med_score",
+      "clinical_score",
+      "ai_medical_score",
+    ]);
+    if (n !== null) return n;
+  }
+  return null;
+}
+
+/** Phrases from the AI reasoning layer (comma- or newline-separated). */
+export function getAiExplanationLines(facility: Facility): string[] {
+  let text = typeof facility.explanation === "string" ? facility.explanation.trim() : "";
+  if (!text) {
+    const raw = facility.raw as Record<string, unknown> | undefined;
+    if (raw) {
+      const lower: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(raw)) {
+        lower[String(k).toLowerCase()] = v;
+      }
+      for (const key of [
+        "explanation",
+        "ai_explanation",
+        "reasoning",
+        "match_explanation",
+        "medical_explanation",
+      ]) {
+        const v = lower[key];
+        if (typeof v === "string" && v.trim()) {
+          text = v.trim();
+          break;
+        }
+        if (v != null && typeof v !== "object") {
+          text = String(v).trim();
+          if (text) break;
+        }
+      }
+    }
+  }
+  if (!text) return [];
+  return text
+    .split(/[,\n]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+export function explanationItemHasWarning(line: string): boolean {
+  return (
+    line.includes("⚠") ||
+    line.includes("\u26A0") ||
+    line.includes("\u26A0\uFE0F")
+  );
+}
+
+/** One string per comma-separated phrase from the AI explanation field. */
+export function getExplanationPhrases(facility: Facility): string[] {
+  const chunks = getAiExplanationLines(facility);
+  if (chunks.length === 0) return [];
+
+  const items: string[] = [];
+  for (const chunk of chunks) {
+    const parts = chunk
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parts.length > 0) {
+      items.push(...parts);
+    } else {
+      const t = chunk.trim();
+      if (t) items.push(t);
+    }
+  }
+  return items;
+}
+
+function decapitalize(s: string): string {
+  if (!s) return s;
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
+function softenCapabilityPhrase(phrase: string): string {
+  let t = phrase.trim();
+  if (!t) return t;
+  t = t.replace(/\bICU\s+available\b/gi, "ICU care");
+  t = t.replace(/\boxygen\s+available\b/gi, "oxygen support");
+  t = t.replace(/\boxygen\s+support\s+available\b/gi, "oxygen support");
+  t = t.replace(/\bsurgery\s+capability\b/gi, "surgical capability");
+  t = t.replace(/\bsurgical\s+capability\b/gi, "surgical capability");
+  return decapitalize(t);
+}
+
+function formatWarningAsClause(text: string): string {
+  const cleaned = text
+    .replace(/^⚠\s*/u, "")
+    .replace(/\u26A0\uFE0F?/gu, "")
+    .trim();
+  if (!cleaned) return "";
+  const lower = decapitalize(cleaned);
+  if (/^no\b/i.test(cleaned) && /anesthesiologist/i.test(cleaned)) {
+    return "No anesthesiologist listed — this may impact surgical safety.";
+  }
+  if (/^no\b/i.test(cleaned)) {
+    const detail = lower.replace(/^no\s+/, "").trim();
+    return `no ${detail} is listed, which may impact surgical safety.`;
+  }
+  if (!/[.!?]$/.test(lower)) {
+    return `${lower}, which may warrant verification.`;
+  }
+  return lower;
+}
+
+function joinPositives(positives: string[]): string {
+  const parts = positives.map(softenCapabilityPhrase).filter(Boolean);
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`;
+}
+
+/**
+ * Turns comma-separated AI signals into 1–2 natural sentences (not a checklist).
+ */
+export function formatFacilityReasoningProse(facility: Facility): string | null {
+  const phrases = getExplanationPhrases(facility);
+  if (phrases.length === 0) return null;
+
+  const positives: string[] = [];
+  const warnings: string[] = [];
+
+  for (const raw of phrases) {
+    const stripped = raw
+      .replace(/^⚠\s*/u, "")
+      .replace(/\u26A0\uFE0F?/gu, "")
+      .trim();
+    if (explanationItemHasWarning(raw)) {
+      if (stripped) warnings.push(stripped);
+    } else if (stripped) {
+      positives.push(stripped);
+    }
+  }
+
+  const sentences: string[] = [];
+
+  if (positives.length > 0) {
+    const body = joinPositives(positives);
+    const head = body.charAt(0).toUpperCase() + body.slice(1);
+    sentences.push(`Offers ${head}.`);
+  }
+
+  if (warnings.length > 0) {
+    const clauses = warnings.map(formatWarningAsClause).filter(Boolean);
+    if (clauses.length > 0) {
+      sentences.push(`However, ${clauses.join(" ")}`);
+    }
+  }
+
+  const out = sentences.join(" ").trim();
+  return out || null;
+}
+
+export function getTrustFlag(facility: Facility): "OK" | "LOW" | null {
+  const parse = (v: unknown): "OK" | "LOW" | null => {
+    if (v === true) return "OK";
+    if (v === false) return "LOW";
+    if (typeof v !== "string") return null;
+    const u = v.trim().toUpperCase();
+    if (u === "OK" || u === "LOW") return u;
+    if (u === "TRUE" || u === "1" || u === "YES" || u === "Y") return "OK";
+    if (u === "FALSE" || u === "0" || u === "NO" || u === "N") return "LOW";
+    return null;
+  };
+
+  const a = parse(facility.trust_flag);
+  if (a) return a;
+  const raw = facility.raw as Record<string, unknown> | undefined;
+  if (!raw) return null;
+  const lower: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    lower[String(k).toLowerCase()] = v;
+  }
+  for (const key of ["trust_flag", "trustflag", "data_trust_flag"]) {
+    const b = parse(lower[key]);
+    if (b) return b;
+  }
+  return null;
+}
+
 export function getFacilityScore(facility: Facility): number | null {
   const candidates: unknown[] = [
+    getMedicalScore(facility),
     facility.composite_score,
     facility.quality_score,
     facility.healthcare_score,
@@ -133,3 +344,4 @@ export function summarizeFacility(facility: Facility): string {
   }
   return "No description available for this facility.";
 }
+

@@ -23,6 +23,12 @@ export interface Facility {
   trust_score?: number;
   score?: number;
   quality_score?: number | null;
+  /** AI / Databricks medical reasoning score (vf_medical_facilities). */
+  medical_score?: number | null;
+  /** "OK" or "LOW" from AI trust assessment. */
+  trust_flag?: string | null;
+  /** Short AI explanation of facility match (often comma-separated phrases). */
+  explanation?: string | null;
   composite_score?: number;
   distance_km?: number;
   distance_score?: number;

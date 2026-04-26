@@ -9,13 +9,13 @@ import {
   SearchIcon,
   SparkleIcon,
 } from "@/components/ui/icons";
-import { Typewriter } from "@/components/ui/Typewriter";
+import { AiInsightPanel } from "@/components/features/AiInsightPanel";
 import { SearchBar } from "@/components/features/SearchBar";
 import { FacilityList } from "@/components/features/FacilityList";
 import { useNearestFacilities } from "@/hooks/useNearestFacilities";
 import { useSearchStore } from "@/store/useSearchStore";
 import { ApiError } from "@/types/api";
-import { formatDistanceKm } from "@/utils/format";
+import { formatDistanceKm, getTrustFlag } from "@/utils/format";
 
 export default function DashboardPage() {
   // Subscribe to each slice individually so React re-renders (and React Query
@@ -108,11 +108,34 @@ export default function DashboardPage() {
     return { count: facilities.length, closest, top, avg };
   }, [facilities]);
 
+  const aiInsight = useMemo(() => {
+    if (!facilities.length) return null;
+    const lowTrust = facilities.filter((f) => getTrustFlag(f) === "LOW").length;
+    const inconsistent = facilities.filter((f) => {
+      const r = f.raw as Record<string, unknown> | undefined;
+      const inc = r?.inconsistency;
+      return typeof inc === "string" && inc.trim().length > 0;
+    }).length;
+    if (!lowTrust && !inconsistent) return null;
+    const parts: string[] = [];
+    if (lowTrust) {
+      parts.push(
+        `${lowTrust} ${lowTrust === 1 ? "has" : "have"} a low trust flag — review carefully`,
+      );
+    }
+    if (inconsistent) {
+      parts.push(
+        `${inconsistent} ${inconsistent === 1 ? "has" : "have"} recorded data inconsistencies`,
+      );
+    }
+    return parts.join(" · ");
+  }, [facilities]);
+
   const errorMessage =
     query.error instanceof ApiError ? query.error.message : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-2 pb-[calc(9rem+env(safe-area-inset-bottom,0px))] xs:px-4 sm:px-6 sm:pb-[calc(8rem+env(safe-area-inset-bottom,0px))]">
+    <div className="mx-auto w-full max-w-3xl px-2 pb-[calc(var(--dashboard-search-dock-height)+20px+1rem+env(safe-area-inset-bottom,0px))] xs:px-4 sm:px-6">
       {shouldSearch ? (
         <div key={keyword.trim()} className="animate-fade-in space-y-6 pt-2">
           <div className="flex items-start justify-between gap-3">
@@ -179,36 +202,23 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {aiInsight && !query.isLoading && (
+            <p
+              className="rounded-2xl border border-amber-200/90 bg-amber-50/90 px-3 py-2.5 text-xs leading-relaxed text-amber-950 dark:border-amber-800/50 dark:bg-amber-950/35 dark:text-amber-100"
+              role="status"
+            >
+              <span className="font-semibold">AI insight:</span> Showing{" "}
+              {facilities.length} facilities. {aiInsight}.
+            </p>
+          )}
+
           <AnimatePresence mode="wait">
             {explanation && !query.isLoading && (
-              <motion.section
-                key={explanation}
-                aria-label="AI explanation"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="mx-auto mb-6 w-full max-w-2xl rounded-3xl border border-brand-200 bg-brand-100 p-5 shadow-soft dark:border-brand-800/60 dark:bg-brand-900/30 dark:shadow-soft-dark sm:p-6"
-              >
-                <div className="flex items-start gap-3">
-                  <motion.span
-                    initial={{ scale: 0.6, rotate: -45 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ duration: 0.45, ease: "backOut" }}
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-2xl bg-brand-600 text-white"
-                  >
-                    <SparkleIcon size={14} />
-                  </motion.span>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">
-                      Why these results
-                    </p>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-800 dark:text-ink-200 sm:text-[15px]">
-                      <Typewriter text={explanation} speed={40} />
-                    </p>
-                  </div>
-                </div>
-              </motion.section>
+              <AiInsightPanel
+                explanation={explanation}
+                keyword={keyword.trim()}
+                cacheRows={cacheRows}
+              />
             )}
           </AnimatePresence>
 
@@ -274,10 +284,15 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white pb-safe backdrop-blur dark:border-ink-800 dark:bg-ink-900/95">
-        <div className="mx-auto w-full max-w-3xl px-2 py-2 xs:px-4 xs:py-3 sm:px-6 sm:py-4">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:px-4 sm:pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+          className="pointer-events-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-ink-200/55 bg-white p-3 shadow-md shadow-ink-900/[0.07] dark:border-ink-700/70 dark:bg-ink-950 dark:shadow-lg dark:shadow-black/25"
+        >
           <SearchBar />
-        </div>
+        </motion.div>
       </div>
     </div>
   );
