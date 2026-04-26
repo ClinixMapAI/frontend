@@ -12,9 +12,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-2xl bg-white border border-ink-100 shadow-soft",
+          "rounded-2xl border border-ink-100 bg-white shadow-soft " +
+            "dark:border-ink-700 dark:bg-ink-900 dark:shadow-soft-dark",
           interactive &&
-            "transition hover:-translate-y-0.5 hover:shadow-glow hover:border-brand-200 cursor-pointer",
+            "cursor-pointer transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-glow " +
+            "dark:hover:border-brand-400 dark:hover:shadow-glow-dark",
           className,
         )}
         {...props}
@@ -42,7 +44,7 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 border-t border-ink-100 px-5 py-3",
+        "flex items-center justify-between gap-3 border-t border-ink-100 px-5 py-3 dark:border-ink-700",
         className,
       )}
       {...props}

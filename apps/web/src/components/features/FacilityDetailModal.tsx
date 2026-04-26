@@ -57,7 +57,7 @@ function AnalysisBody({ analysis }: { analysis: string }) {
   return (
     <div className="space-y-4">
       {summary && (
-        <p className="rounded-2xl bg-ink-50 p-4 text-sm leading-relaxed text-ink-800">
+        <p className="rounded-2xl bg-ink-50 p-4 text-sm leading-relaxed text-ink-800 dark:bg-ink-800/60 dark:text-ink-200">
           {summary}
         </p>
       )}
@@ -66,12 +66,12 @@ function AnalysisBody({ analysis }: { analysis: string }) {
           {sections.map((section) => (
             <div
               key={section.title}
-              className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft"
+              className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft dark:border-ink-700 dark:bg-ink-900/70 dark:shadow-soft-dark"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">
                 {section.title}
               </p>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-700">
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-700 dark:text-ink-300">
                 {section.body || "—"}
               </p>
             </div>
@@ -79,7 +79,7 @@ function AnalysisBody({ analysis }: { analysis: string }) {
         </div>
       ) : (
         !summary && (
-          <p className="text-sm text-ink-500">
+          <p className="text-sm text-ink-500 dark:text-ink-400">
             The AI did not return a structured response.
           </p>
         )
@@ -155,29 +155,29 @@ export function FacilityDetailModal() {
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft">
-            <p className="text-[11px] uppercase tracking-wider text-ink-500">
+          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft dark:border-ink-700 dark:bg-ink-900/70 dark:shadow-soft-dark">
+            <p className="text-[11px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
               AI Score
             </p>
-            <p className="mt-1 flex items-center gap-1.5 font-mono text-2xl font-semibold text-ink-900">
+            <p className="mt-1 flex items-center gap-1.5 font-mono text-2xl font-semibold text-ink-900 dark:text-ink-50">
               <ChartIcon size={18} className="text-accent-600" />
               {formatScore(score)}
             </p>
           </div>
-          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft">
-            <p className="text-[11px] uppercase tracking-wider text-ink-500">
+          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft dark:border-ink-700 dark:bg-ink-900/70 dark:shadow-soft-dark">
+            <p className="text-[11px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
               Rating
             </p>
-            <p className="mt-1 inline-flex items-center gap-1.5 font-display text-lg font-semibold text-ink-900">
+            <p className="mt-1 inline-flex items-center gap-1.5 font-display text-lg font-semibold text-ink-900 dark:text-ink-50">
               <StarIcon size={16} className="text-accent-500" />
               {rating ?? "—"}
             </p>
           </div>
-          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft">
-            <p className="text-[11px] uppercase tracking-wider text-ink-500">
+          <div className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft dark:border-ink-700 dark:bg-ink-900/70 dark:shadow-soft-dark">
+            <p className="text-[11px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
               Specialties
             </p>
-            <p className="mt-1 text-sm font-medium text-ink-900">
+            <p className="mt-1 text-sm font-medium text-ink-900 dark:text-ink-50">
               {specialties.length > 0
                 ? `${specialties.length} mapped`
                 : "Not specified"}
@@ -186,10 +186,12 @@ export function FacilityDetailModal() {
         </div>
 
         <section>
-          <h3 className="mb-2 font-display text-sm font-semibold uppercase tracking-wider text-ink-500">
+          <h3 className="mb-2 font-display text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
             Overview
           </h3>
-          <p className="text-sm leading-relaxed text-ink-700">{description}</p>
+          <p className="text-sm leading-relaxed text-ink-700 dark:text-ink-300">
+            {description}
+          </p>
           {specialties.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {specialties.map((item) => (
@@ -204,19 +206,19 @@ export function FacilityDetailModal() {
         <section>
           <div className="mb-2 flex items-center gap-2">
             <SparkleIcon size={16} className="text-brand-600" />
-            <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-ink-500">
+            <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
               AI analysis
             </h3>
           </div>
 
           {analyzeMutation.isPending && (
-            <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/60 p-6">
+            <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/60 p-6 dark:border-brand-800/50 dark:bg-brand-900/25">
               <Loader label="Generating a structured analysis with the LLM…" />
             </div>
           )}
 
           {errorMessage && !analyzeMutation.isPending && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
               {errorMessage}
             </div>
           )}

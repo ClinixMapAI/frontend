@@ -29,7 +29,7 @@ function AnalyzingIndicator() {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="mx-auto flex w-full max-w-2xl flex-col gap-4"
     >
-      <div className="flex items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-white px-4 py-3 text-sm text-brand-700 shadow-soft">
+      <div className="flex items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-white px-4 py-3 text-sm text-brand-700 shadow-soft dark:border-brand-800/50 dark:bg-ink-900/80 dark:text-brand-300 dark:shadow-soft-dark">
         <motion.span
           animate={{ rotate: 360 }}
           transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
@@ -100,10 +100,10 @@ export function FacilityList({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="mx-auto w-full max-w-2xl rounded-3xl border border-red-200 bg-red-50 p-6 text-sm text-red-700"
+        className="mx-auto w-full max-w-2xl rounded-3xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200"
       >
         <p className="font-semibold">We couldn’t load facilities right now.</p>
-        <p className="mt-1 text-red-600/90">
+        <p className="mt-1 text-red-600/90 dark:text-red-300/90">
           {errorMessage ?? "The backend returned an unexpected error."}
         </p>
         {onRetry && (
@@ -121,12 +121,12 @@ export function FacilityList({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="mx-auto w-full max-w-2xl rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center"
+        className="mx-auto w-full max-w-2xl rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center dark:border-ink-600 dark:bg-ink-900/50"
       >
-        <p className="font-display text-lg font-semibold text-ink-900">
+        <p className="font-display text-lg font-semibold text-ink-900 dark:text-ink-50">
           {emptyTitle}
         </p>
-        <p className="mx-auto mt-1 max-w-md text-sm text-ink-500">
+        <p className="mx-auto mt-1 max-w-md text-sm text-ink-500 dark:text-ink-400">
           {emptyDescription}
         </p>
       </motion.div>

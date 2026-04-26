@@ -11,7 +11,7 @@ export function Spinner({ size = 18, className }: SpinnerProps) {
       role="status"
       aria-label="Loading"
       className={cn(
-        "inline-block rounded-full border-2 border-ink-300 border-t-ink-900 animate-spin",
+        "inline-block rounded-full border-2 border-ink-300 border-t-ink-900 animate-spin dark:border-ink-600 dark:border-t-ink-100",
         className,
       )}
       style={{ width: size, height: size }}
@@ -28,7 +28,7 @@ export function Loader({ label = "Loading…", className }: LoaderProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-3 text-sm text-ink-500",
+        "flex items-center gap-3 text-sm text-ink-500 dark:text-ink-400",
         className,
       )}
     >
@@ -48,7 +48,7 @@ export function Skeleton({ className }: SkeletonProps) {
 
 export function FacilityCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-soft">
+    <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-soft dark:border-ink-700 dark:bg-ink-900/80 dark:shadow-soft-dark">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
           <Skeleton className="h-4 w-2/3" />

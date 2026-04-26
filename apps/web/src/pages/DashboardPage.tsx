@@ -112,7 +112,7 @@ export default function DashboardPage() {
     query.error instanceof ApiError ? query.error.message : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-36 sm:px-6 sm:pb-32">
+    <div className="mx-auto w-full max-w-3xl px-2 pb-[calc(9rem+env(safe-area-inset-bottom,0px))] xs:px-4 sm:px-6 sm:pb-[calc(8rem+env(safe-area-inset-bottom,0px))]">
       {shouldSearch ? (
         <div key={keyword.trim()} className="animate-fade-in space-y-6 pt-2">
           <div className="flex items-start justify-between gap-3">
@@ -121,10 +121,10 @@ export default function DashboardPage() {
                 <SearchIcon size={10} />
                 {keyword.trim()}
               </Badge>
-              <h2 className="font-display text-xl font-semibold text-ink-900">
+              <h2 className="font-display text-base font-semibold text-ink-900 xs:text-lg sm:text-xl dark:text-ink-50">
                 Nearest top-ranked facilities
               </h2>
-              <p className="mt-0.5 text-xs text-ink-500">
+              <p className="mt-0.5 text-[11px] text-ink-500 xs:text-xs dark:text-ink-400">
                 {deviceLocation ? "Distances from your location" : "Centered at"}{" "}
                 <span className="font-mono">
                   {searchOrigin.latitude.toFixed(3)},{" "}
@@ -139,36 +139,36 @@ export default function DashboardPage() {
           </div>
 
           {stats && (
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500">
+            <div className="grid grid-cols-3 gap-1.5 watch:grid-cols-1 watch:gap-2 sm:gap-3">
+              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft dark:border-ink-700 dark:bg-ink-900/80 dark:shadow-soft-dark">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
                   <HospitalIcon size={11} />
                   Showing
                 </div>
-                <p className="mt-1 font-mono text-lg font-semibold text-ink-900">
+                <p className="mt-1 font-mono text-lg font-semibold text-ink-900 dark:text-ink-50">
                   {stats.count}
                 </p>
-                <p className="mt-0.5 text-[10px] uppercase tracking-wider text-ink-400">
+                <p className="mt-0.5 text-[10px] uppercase tracking-wider text-ink-400 dark:text-ink-500">
                   {cacheRows !== null ? `of ${cacheRows} cached` : "facilities"}
                 </p>
               </div>
-              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500">
+              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft dark:border-ink-700 dark:bg-ink-900/80 dark:shadow-soft-dark">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
                   <MapPinIcon size={11} />
                   Closest
                 </div>
-                <p className="mt-1 font-mono text-lg font-semibold text-ink-900">
+                <p className="mt-1 font-mono text-lg font-semibold text-ink-900 dark:text-ink-50">
                   {stats.closest !== null
                     ? formatDistanceKm(stats.closest)
                     : "—"}
                 </p>
               </div>
-              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500">
+              <div className="rounded-2xl border border-ink-100 bg-white p-3 shadow-soft dark:border-ink-700 dark:bg-ink-900/80 dark:shadow-soft-dark">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-500 dark:text-ink-400">
                   <ChartIcon size={11} />
                   Top score
                 </div>
-                <p className="mt-1 font-mono text-lg font-semibold text-ink-900">
+                <p className="mt-1 font-mono text-lg font-semibold text-ink-900 dark:text-ink-50">
                   {stats.top !== null
                     ? stats.top > 1
                       ? stats.top.toFixed(0)
@@ -188,7 +188,7 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="mx-auto mb-6 w-full max-w-2xl rounded-3xl border border-brand-200 bg-brand-100 p-5 shadow-soft sm:p-6"
+                className="mx-auto mb-6 w-full max-w-2xl rounded-3xl border border-brand-200 bg-brand-100 p-5 shadow-soft dark:border-brand-800/60 dark:bg-brand-900/30 dark:shadow-soft-dark sm:p-6"
               >
                 <div className="flex items-start gap-3">
                   <motion.span
@@ -200,10 +200,10 @@ export default function DashboardPage() {
                     <SparkleIcon size={14} />
                   </motion.span>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">
                       Why these results
                     </p>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-800 sm:text-[15px]">
+                    <p className="mt-1 text-sm leading-relaxed text-ink-800 dark:text-ink-200 sm:text-[15px]">
                       <Typewriter text={explanation} speed={40} />
                     </p>
                   </div>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
 
           {searchNote && !query.isLoading && (
             <p
-              className="rounded-2xl border border-ink-200 bg-ink-50 px-3 py-2.5 text-xs text-ink-600"
+              className="rounded-2xl border border-ink-200 bg-ink-50 px-3 py-2.5 text-xs text-ink-600 dark:border-ink-600 dark:bg-ink-800/60 dark:text-ink-300"
               role="status"
             >
               {searchNote}
@@ -243,7 +243,7 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="flex min-h-[65vh] items-center justify-center">
+        <div className="flex min-h-[min(65vh,calc(100dvh-12rem))] watch:min-h-[min(50vh,calc(100dvh-10rem))] items-center justify-center px-0.5">
           <section
             aria-label="Search prompt"
             className="w-full animate-fade-in text-center"
@@ -255,16 +255,16 @@ export default function DashboardPage() {
               <SparkleIcon size={10} />
               Search-driven
             </Badge>
-            <h2 className="mt-3 font-display text-2xl font-semibold text-ink-900 sm:text-3xl">
+            <h2 className="mt-3 font-display text-xl font-semibold text-ink-900 xs:text-2xl sm:text-3xl dark:text-ink-50">
               Start by describing your medical need
             </h2>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-ink-500 sm:text-base">
+            <p className="mx-auto mt-2 max-w-xl text-xs text-ink-500 xs:text-sm sm:text-base dark:text-ink-400">
               Try{" "}
-              <span className="font-medium text-ink-700">
+              <span className="font-medium text-ink-700 dark:text-ink-200">
                 “ICU with oxygen”
               </span>{" "}
               or{" "}
-              <span className="font-medium text-ink-700">
+              <span className="font-medium text-ink-700 dark:text-ink-200">
                 “child breathing problem”
               </span>
               . We’ll rank the nearest facilities by quality and explain the top
@@ -274,8 +274,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white">
-        <div className="mx-auto w-full max-w-3xl px-4 py-3 sm:px-6 sm:py-4">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white pb-safe backdrop-blur dark:border-ink-800 dark:bg-ink-900/95">
+        <div className="mx-auto w-full max-w-3xl px-2 py-2 xs:px-4 xs:py-3 sm:px-6 sm:py-4">
           <SearchBar />
         </div>
       </div>

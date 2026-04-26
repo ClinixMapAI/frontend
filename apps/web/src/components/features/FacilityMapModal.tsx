@@ -120,21 +120,21 @@ export function FacilityMapModal() {
         className="absolute inset-0 cursor-default bg-ink-900/70 backdrop-blur-sm animate-fade-in"
       />
 
-      <div className="relative z-10 mx-4 flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-glow animate-fade-in sm:mx-6">
-        <header className="flex items-start justify-between gap-4 border-b border-ink-100 p-5 sm:p-6">
+      <div className="relative z-10 mx-4 flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-glow animate-fade-in dark:bg-ink-900 dark:shadow-glow-dark sm:mx-6">
+        <header className="flex items-start justify-between gap-4 border-b border-ink-100 p-5 dark:border-ink-700 sm:p-6">
           <div className="min-w-0">
             <Badge tone="accent" className="mb-2">
               <MapPinIcon size={10} />
               Map view
             </Badge>
-            <h2 className="font-display text-xl font-semibold text-ink-900 sm:text-2xl">
+            <h2 className="font-display text-xl font-semibold text-ink-900 dark:text-ink-50 sm:text-2xl">
               {name}
             </h2>
-            <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-500">
+            <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-500 dark:text-ink-400">
               <MapPinIcon size={14} />
               {location}
               {distanceKm !== null && (
-                <span className="ml-2 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[10px] text-emerald-700">
+                <span className="ml-2 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[10px] text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300">
                   {formatDistanceKm(distanceKm)} away
                 </span>
               )}
@@ -145,13 +145,13 @@ export function FacilityMapModal() {
             type="button"
             onClick={close}
             aria-label="Close"
-            className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-50"
           >
             <CloseIcon size={18} />
           </button>
         </header>
 
-        <div className="relative flex-1 bg-ink-100">
+        <div className="relative flex-1 bg-ink-100 dark:bg-[#020617]">
           {center ? (
             <MapContainer
               center={center}
@@ -167,9 +167,13 @@ export function FacilityMapModal() {
               <Marker position={center} icon={facilityMarker}>
                 <Popup>
                   <div className="space-y-1">
-                    <p className="font-semibold text-ink-900">{name}</p>
-                    <p className="text-xs text-ink-600">{location}</p>
-                    <p className="font-mono text-[11px] text-ink-500">
+                    <p className="font-semibold text-ink-900 dark:text-ink-50">
+                      {name}
+                    </p>
+                    <p className="text-xs text-ink-600 dark:text-ink-300">
+                      {location}
+                    </p>
+                    <p className="font-mono text-[11px] text-ink-500 dark:text-ink-400">
                       {center[0].toFixed(4)}, {center[1].toFixed(4)}
                     </p>
                   </div>
@@ -183,10 +187,10 @@ export function FacilityMapModal() {
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-600 text-white">
                   <MapPinIcon size={20} />
                 </div>
-                <p className="mt-3 font-display text-lg font-semibold text-ink-900">
+                <p className="mt-3 font-display text-lg font-semibold text-ink-900 dark:text-ink-50">
                   No coordinates available
                 </p>
-                <p className="mt-1 text-sm text-ink-500">
+                <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
                   This facility doesn’t have geolocation data attached, so we
                   can’t plot it on a map yet.
                 </p>
@@ -195,8 +199,8 @@ export function FacilityMapModal() {
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 bg-ink-50/60 p-4">
-          <p className="text-xs text-ink-500">
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 bg-ink-50/60 p-4 dark:border-ink-700 dark:bg-ink-800/80">
+          <p className="text-xs text-ink-500 dark:text-ink-400">
             Map data ©{" "}
             <a
               href="https://www.openstreetmap.org/copyright"

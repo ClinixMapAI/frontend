@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "./components/layout/AppShell";
+import { ThemeSync } from "./components/layout/ThemeSync";
 import { Loader } from "./components/ui/Loader";
 import { FacilityDetailModal } from "./components/features/FacilityDetailModal";
 import { FacilityMapModal } from "./components/features/FacilityMapModal";
@@ -19,16 +20,19 @@ function PageFallback() {
 
 export default function App() {
   return (
-    <AppShell>
-      <Suspense fallback={<PageFallback />}>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/agent" element={<AgentPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-      <FacilityDetailModal />
-      <FacilityMapModal />
-    </AppShell>
+    <>
+      <ThemeSync />
+      <AppShell>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/agent" element={<AgentPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+        <FacilityDetailModal />
+        <FacilityMapModal />
+      </AppShell>
+    </>
   );
 }

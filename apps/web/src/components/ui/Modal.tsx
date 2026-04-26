@@ -56,11 +56,11 @@ export function Modal({
         type="button"
         aria-label="Close modal backdrop"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-ink-900/40 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 cursor-default bg-ink-900/40 backdrop-blur-sm animate-fade-in dark:bg-black/60"
       />
       <div
         className={cn(
-          "relative z-10 w-full overflow-hidden rounded-t-3xl bg-white shadow-glow",
+          "relative z-10 w-full overflow-hidden rounded-t-3xl bg-white shadow-glow dark:bg-ink-900 dark:shadow-glow-dark",
           "sm:rounded-3xl sm:m-4",
           sizeStyles[size],
           "animate-fade-in",
@@ -68,21 +68,23 @@ export function Modal({
         )}
       >
         {(title || description) && (
-          <header className="flex items-start justify-between gap-4 border-b border-ink-100 p-6">
+          <header className="flex items-start justify-between gap-4 border-b border-ink-100 p-6 dark:border-ink-700">
             <div className="min-w-0">
               {title && (
-                <h2 className="font-display text-xl font-semibold text-ink-900">
+                <h2 className="font-display text-xl font-semibold text-ink-900 dark:text-ink-50">
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-1 text-sm text-ink-500">{description}</p>
+                <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
+                  {description}
+                </p>
               )}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
               aria-label="Close"
             >
               <svg
@@ -105,7 +107,7 @@ export function Modal({
           {children}
         </div>
         {footer && (
-          <footer className="flex items-center justify-end gap-2 border-t border-ink-100 bg-ink-50/60 p-4">
+          <footer className="flex items-center justify-end gap-2 border-t border-ink-100 bg-ink-50/60 p-4 dark:border-ink-700 dark:bg-ink-800/50">
             {footer}
           </footer>
         )}

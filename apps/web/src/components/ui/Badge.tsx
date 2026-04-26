@@ -16,12 +16,17 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const toneStyles: Record<BadgeTone, string> = {
-  neutral: "bg-ink-100 text-ink-700 border-ink-200",
-  brand: "bg-brand-50 text-brand-700 border-brand-200",
-  accent: "bg-accent-50 text-accent-700 border-accent-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-200",
-  danger: "bg-red-50 text-red-700 border-red-200",
-  ink: "bg-ink-900 text-white border-ink-900",
+  neutral:
+    "bg-ink-100 text-ink-700 border-ink-200 dark:bg-ink-800 dark:text-ink-200 dark:border-ink-600",
+  brand:
+    "bg-brand-50 text-brand-700 border-brand-200 dark:bg-brand-950/60 dark:text-brand-300 dark:border-brand-700",
+  accent:
+    "bg-accent-50 text-accent-700 border-accent-200 dark:bg-accent-900/35 dark:text-accent-300 dark:border-accent-700",
+  warning:
+    "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
+  danger:
+    "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800",
+  ink: "bg-ink-900 text-white border-ink-900 dark:bg-ink-100 dark:text-ink-900 dark:border-ink-100",
 };
 
 export function Badge({ className, tone = "neutral", icon, children, ...props }: BadgeProps) {

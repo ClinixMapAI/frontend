@@ -33,38 +33,42 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500"
+            className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500 dark:text-ink-400"
           >
             {label}
           </label>
         )}
         <div
           className={cn(
-            "group flex items-center gap-2 rounded-2xl border bg-white px-3.5 transition",
-            "shadow-soft",
+            "group flex items-center gap-2 rounded-2xl border bg-white px-3.5 transition shadow-soft",
+            "dark:border-ink-600 dark:bg-ink-900 dark:shadow-soft-dark",
             error
-              ? "border-red-400 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-200"
-              : "border-ink-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200",
+              ? "border-red-400 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-200 dark:focus-within:ring-red-900/50"
+              : "border-ink-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200 dark:focus-within:ring-brand-800",
           )}
         >
           {leftIcon && (
-            <span className="text-ink-400 group-focus-within:text-ink-700">{leftIcon}</span>
+            <span className="text-ink-400 group-focus-within:text-ink-700 dark:text-ink-500 dark:group-focus-within:text-ink-200">
+              {leftIcon}
+            </span>
           )}
           <input
             ref={ref}
             id={inputId}
             className={cn(
-              "h-11 w-full bg-transparent text-sm text-ink-900 placeholder:text-ink-400 outline-none",
+              "h-11 w-full bg-transparent text-sm text-ink-900 placeholder:text-ink-400 outline-none dark:text-ink-100 dark:placeholder:text-ink-500",
               className,
             )}
             {...props}
           />
-          {rightIcon && <span className="text-ink-400">{rightIcon}</span>}
+          {rightIcon && (
+            <span className="text-ink-400 dark:text-ink-500">{rightIcon}</span>
+          )}
         </div>
         {error ? (
           <p className="mt-1.5 text-xs text-red-600">{error}</p>
         ) : hint ? (
-          <p className="mt-1.5 text-xs text-ink-500">{hint}</p>
+          <p className="mt-1.5 text-xs text-ink-500 dark:text-ink-400">{hint}</p>
         ) : null}
       </div>
     );

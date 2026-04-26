@@ -31,11 +31,11 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         className={
           isUser
             ? "max-w-[85%] rounded-3xl rounded-tr-md bg-ink-900 px-4 py-3 text-sm text-white shadow-soft"
-            : "max-w-[85%] rounded-3xl rounded-tl-md border border-ink-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink-800 shadow-soft"
+            : "max-w-[85%] rounded-3xl rounded-tl-md border border-ink-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink-800 shadow-soft dark:border-ink-700 dark:bg-ink-800/90 dark:text-ink-100 dark:shadow-soft-dark"
         }
       >
         {!isUser && (
-          <div className="mb-1 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-brand-700">
+          <div className="mb-1 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300">
             <SparkleIcon size={12} />
             AI Agent
           </div>
@@ -108,17 +108,17 @@ export function AgentChat() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
       <div className="lg:col-span-7 xl:col-span-6">
-        <div className="flex h-[calc(100vh-14rem)] min-h-[520px] flex-col rounded-3xl border border-ink-100 bg-white shadow-soft">
-          <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3">
+        <div className="flex h-[min(560px,calc(100dvh-9.5rem))] min-h-[min(280px,calc(100dvh-11rem))] flex-col rounded-2xl border border-ink-100 bg-white shadow-soft dark:border-ink-700 dark:bg-ink-900/80 dark:shadow-soft-dark watch:rounded-xl sm:min-h-[400px] sm:rounded-3xl md:min-h-[480px] lg:h-[calc(100vh-14rem)] lg:min-h-[520px]">
+          <div className="flex items-center justify-between border-b border-ink-100 px-3 py-2.5 watch:px-2.5 sm:px-5 sm:py-3 dark:border-ink-700">
             <div className="flex items-center gap-2">
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-600 text-white">
                 <SparkleIcon size={14} />
               </span>
               <div>
-                <p className="font-display text-sm font-semibold text-ink-900">
+                <p className="font-display text-sm font-semibold text-ink-900 dark:text-ink-50">
                   HackNation AI Agent
                 </p>
-                <p className="text-[11px] text-ink-500">
+                <p className="text-[11px] text-ink-500 dark:text-ink-400">
                   Natural-language facility recommendations
                 </p>
               </div>
@@ -132,17 +132,17 @@ export function AgentChat() {
 
           <div
             ref={scrollRef}
-            className="flex-1 space-y-3 overflow-y-auto scrollbar-thin px-5 py-4"
+            className="flex-1 space-y-3 overflow-y-auto scrollbar-thin px-3 py-3 watch:px-2 sm:px-5 sm:py-4"
           >
             {messages.length === 0 && (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 shadow-soft">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 shadow-soft dark:bg-brand-900/40 dark:text-brand-200 dark:shadow-soft-dark">
                   <SparkleIcon size={20} />
                 </div>
-                <h3 className="mt-3 font-display text-lg font-semibold text-ink-900">
+                <h3 className="mt-3 font-display text-lg font-semibold text-ink-900 dark:text-ink-50">
                   Ask anything about healthcare facilities
                 </h3>
-                <p className="mt-1 max-w-md text-sm text-ink-500">
+                <p className="mt-1 max-w-md text-sm text-ink-500 dark:text-ink-400">
                   Describe what you need in plain English. The agent extracts
                   intent, ranks facilities, and explains the trade-offs.
                 </p>
@@ -151,7 +151,7 @@ export function AgentChat() {
                     <button
                       key={suggestion}
                       onClick={() => submitQuery(suggestion)}
-                      className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs text-ink-700 transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-ink-900 hover:shadow-soft"
+                      className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs text-ink-700 transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-ink-900 hover:shadow-soft dark:border-ink-600 dark:bg-ink-800 dark:text-ink-200 dark:hover:border-brand-500 dark:hover:text-ink-50 dark:hover:shadow-soft-dark"
                     >
                       {suggestion}
                     </button>
@@ -165,7 +165,7 @@ export function AgentChat() {
             ))}
 
             {mutation.isPending && (
-              <div className="flex items-center gap-2 rounded-3xl rounded-tl-md border border-ink-100 bg-white px-4 py-3 text-sm text-ink-600 shadow-soft">
+              <div className="flex items-center gap-2 rounded-3xl rounded-tl-md border border-ink-100 bg-white px-4 py-3 text-sm text-ink-600 shadow-soft dark:border-ink-700 dark:bg-ink-800/90 dark:text-ink-300 dark:shadow-soft-dark">
                 <Spinner size={14} />
                 Thinking, querying Databricks, and ranking facilities…
               </div>
@@ -174,9 +174,9 @@ export function AgentChat() {
 
           <form
             onSubmit={handleSubmit}
-            className="border-t border-ink-100 p-3"
+            className="border-t border-ink-100 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] dark:border-ink-700 sm:p-3"
           >
-            <div className="flex items-end gap-2 rounded-2xl border border-ink-200 bg-white p-2 shadow-soft focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200">
+            <div className="flex items-end gap-2 rounded-2xl border border-ink-200 bg-white p-2 shadow-soft focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200 dark:border-ink-600 dark:bg-ink-800/80 dark:shadow-soft-dark dark:focus-within:ring-brand-800/40">
               <textarea
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
@@ -188,7 +188,7 @@ export function AgentChat() {
                 }}
                 placeholder="e.g. Find the best cardiac hospital in Delhi"
                 rows={1}
-                className="block h-11 max-h-32 min-h-[2.75rem] w-full resize-none bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none"
+                className="block h-11 max-h-32 min-h-[2.75rem] w-full resize-none bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none dark:text-ink-100 dark:placeholder:text-ink-500"
                 aria-label="Ask the AI agent"
               />
               <Button
@@ -202,8 +202,20 @@ export function AgentChat() {
                 Send
               </Button>
             </div>
-            <p className="mt-2 px-1 text-[11px] text-ink-400">
-              Press <kbd className="rounded border border-ink-200 px-1">Enter</kbd> to send · <kbd className="rounded border border-ink-200 px-1">Shift</kbd>+<kbd className="rounded border border-ink-200 px-1">Enter</kbd> for newline
+            <p className="mt-2 px-1 text-[11px] text-ink-400 dark:text-ink-500">
+              Press{" "}
+              <kbd className="rounded border border-ink-200 px-1 dark:border-ink-600">
+                Enter
+              </kbd>{" "}
+              to send ·{" "}
+              <kbd className="rounded border border-ink-200 px-1 dark:border-ink-600">
+                Shift
+              </kbd>
+              +
+              <kbd className="rounded border border-ink-200 px-1 dark:border-ink-600">
+                Enter
+              </kbd>{" "}
+              for newline
             </p>
           </form>
         </div>
@@ -212,11 +224,11 @@ export function AgentChat() {
       <div className="lg:col-span-5 xl:col-span-6">
         <div className="sticky top-24 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink-900">
+            <h2 className="font-display text-lg font-semibold text-ink-900 dark:text-ink-50">
               Ranked facilities
             </h2>
             {lastResponse && (
-              <span className="text-xs text-ink-500">
+              <span className="text-xs text-ink-500 dark:text-ink-400">
                 {lastResponse.results.length} of{" "}
                 {lastResponse.pagination?.total ?? lastResponse.results.length}
               </span>
@@ -224,11 +236,11 @@ export function AgentChat() {
           </div>
 
           {!lastResponse && !mutation.isPending && (
-            <div className="rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center">
-              <p className="font-display text-base font-semibold text-ink-900">
+            <div className="rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center dark:border-ink-600 dark:bg-ink-900/50">
+              <p className="font-display text-base font-semibold text-ink-900 dark:text-ink-50">
                 Results appear here
               </p>
-              <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500">
+              <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500 dark:text-ink-400">
                 Ask the agent a question. We will return the top-ranked
                 facilities and a short explanation of why.
               </p>
@@ -247,11 +259,11 @@ export function AgentChat() {
           {!mutation.isPending &&
             lastResponse &&
             lastResponse.results.length === 0 && (
-              <div className="rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center">
-                <p className="font-display text-base font-semibold text-ink-900">
+              <div className="rounded-3xl border border-dashed border-ink-200 bg-white/60 p-10 text-center dark:border-ink-600 dark:bg-ink-900/50">
+                <p className="font-display text-base font-semibold text-ink-900 dark:text-ink-50">
                   No matching facilities
                 </p>
-                <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500">
+                <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500 dark:text-ink-400">
                   Try broadening your location or specialty terms.
                 </p>
               </div>

@@ -16,7 +16,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const baseStyles =
   "inline-flex items-center justify-center gap-2 font-medium rounded-2xl transition " +
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 " +
-  "focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed " +
+  "focus-visible:ring-offset-white dark:focus-visible:ring-offset-ink-900 " +
+  "disabled:opacity-50 disabled:cursor-not-allowed " +
   "select-none whitespace-nowrap";
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -27,9 +28,11 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-700 shadow-soft " +
     "border border-accent-600/20",
   ghost:
-    "bg-transparent text-ink-700 hover:bg-ink-50 active:bg-ink-100 border border-transparent",
+    "bg-transparent text-ink-700 hover:bg-ink-50 active:bg-ink-100 border border-transparent " +
+    "dark:text-ink-200 dark:hover:bg-ink-800 dark:active:bg-ink-800/80",
   outline:
-    "bg-white text-ink-900 hover:bg-ink-50 active:bg-ink-100 border border-ink-200",
+    "bg-white text-ink-900 hover:bg-ink-50 active:bg-ink-100 border border-ink-200 " +
+    "dark:border-ink-600 dark:bg-ink-900 dark:text-ink-100 dark:hover:bg-ink-800 dark:active:bg-ink-800/80",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

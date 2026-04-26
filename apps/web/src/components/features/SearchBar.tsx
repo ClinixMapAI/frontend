@@ -182,16 +182,16 @@ export function SearchBar() {
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 px-1 text-[11px]">
-        <span className="shrink-0 text-ink-400">Location</span>
+        <span className="shrink-0 text-ink-400 dark:text-ink-500">Location</span>
         <div className="relative min-w-0 flex-1 basis-[160px] sm:max-w-[220px]">
           <MapPinIcon
             size={10}
-            className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500"
           />
           <select
             value={locationSelectValue}
             onChange={(event) => handleCityChange(event.target.value)}
-            className="w-full cursor-pointer appearance-none rounded-full bg-transparent py-0.5 pl-7 pr-6 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80"
+            className="w-full cursor-pointer appearance-none rounded-full bg-transparent py-0.5 pl-7 pr-6 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80 dark:text-ink-300 dark:hover:bg-ink-800/80 dark:hover:text-ink-100 dark:focus:bg-ink-800/80"
             aria-label="Search near city"
           >
             {(deviceLocation !== null || location.source === "browser") && (
@@ -207,7 +207,7 @@ export function SearchBar() {
           </select>
           <FilterIcon
             size={9}
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500"
           />
         </div>
         <button
@@ -217,8 +217,8 @@ export function SearchBar() {
           className={cn(
             "inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 font-medium transition",
             isGeoLoading
-              ? "cursor-wait bg-ink-100 text-ink-400"
-              : "bg-brand-50 text-brand-700 hover:bg-brand-100",
+              ? "cursor-wait bg-ink-100 text-ink-400 dark:bg-ink-800 dark:text-ink-500"
+              : "bg-brand-50 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/40 dark:text-brand-200 dark:hover:bg-brand-900/60",
           )}
           aria-label="Use my current location"
         >
@@ -233,16 +233,18 @@ export function SearchBar() {
       {location.source === "default" &&
         !deviceLocation &&
         !locationError && (
-        <p className="px-1 text-[11px] text-ink-400">
+        <p className="px-1 text-[11px] text-ink-400 dark:text-ink-500">
           Allow location when your browser asks so distances match where you are.
         </p>
       )}
       {locationError && (
-        <p className="px-1 text-[11px] text-red-600">{locationError}</p>
+        <p className="px-1 text-[11px] text-red-600 dark:text-red-400">
+          {locationError}
+        </p>
       )}
 
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-[11px]">
-        <span className="text-ink-400">Within</span>
+        <span className="text-ink-400 dark:text-ink-500">Within</span>
         {RADIUS_PRESETS.map((preset) => {
           const active = radiusKm === preset.value;
           return (
@@ -253,8 +255,8 @@ export function SearchBar() {
               className={cn(
                 "rounded-full px-2 py-0.5 font-medium transition",
                 active
-                  ? "bg-ink-900 text-white"
-                  : "text-ink-500 hover:bg-ink-100/80 hover:text-ink-800",
+                  ? "bg-ink-900 text-white dark:bg-ink-100 dark:text-ink-900"
+                  : "text-ink-500 hover:bg-ink-100/80 hover:text-ink-800 dark:text-ink-400 dark:hover:bg-ink-800/80 dark:hover:text-ink-100",
               )}
             >
               {preset.label}
@@ -262,16 +264,16 @@ export function SearchBar() {
           );
         })}
 
-        <span className="mx-1 text-ink-200" aria-hidden>
+        <span className="mx-1 text-ink-200 dark:text-ink-600" aria-hidden>
           ·
         </span>
 
-        <span className="text-ink-400">Show</span>
+        <span className="text-ink-400 dark:text-ink-500">Show</span>
         <div className="relative">
           <select
             value={limit}
             onChange={(event) => setLimit(Number(event.target.value))}
-            className="cursor-pointer appearance-none rounded-full bg-transparent px-2 py-0.5 pr-5 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80"
+            className="cursor-pointer appearance-none rounded-full bg-transparent px-2 py-0.5 pr-5 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80 dark:text-ink-300 dark:hover:bg-ink-800/80 dark:hover:text-ink-100 dark:focus:bg-ink-800/80"
             aria-label="Result limit"
           >
             {LIMIT_OPTIONS.map((option) => (
@@ -282,13 +284,13 @@ export function SearchBar() {
           </select>
           <FilterIcon
             size={9}
-            className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-ink-400 dark:text-ink-500"
           />
         </div>
       </div>
 
       <div className="group relative w-full">
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 transition group-focus-within:text-ink-700">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 transition group-focus-within:text-ink-700 dark:text-ink-500 dark:group-focus-within:text-ink-200">
           <SearchIcon size={18} />
         </span>
         <input
@@ -304,7 +306,7 @@ export function SearchBar() {
             "min-h-[52px] w-full rounded-xl bg-transparent",
             "pl-11 pr-12 text-base text-ink-900 placeholder:text-ink-400",
             "outline-none transition",
-            "focus:bg-white/60",
+            "focus:bg-white/60 dark:text-ink-100 dark:placeholder:text-ink-500 dark:focus:bg-ink-800/50",
           )}
         />
         <button
@@ -319,7 +321,7 @@ export function SearchBar() {
               ? hasPendingChange
                 ? "bg-brand-600 text-white shadow-glow hover:bg-brand-700"
                 : "bg-brand-600 text-white hover:bg-brand-700"
-              : "bg-ink-100 text-ink-400",
+              : "bg-ink-100 text-ink-400 dark:bg-ink-800 dark:text-ink-500",
           )}
         >
           <ArrowRightIcon size={16} />
@@ -333,7 +335,7 @@ export function SearchBar() {
               key={suggestion}
               type="button"
               onClick={() => handleSuggestion(suggestion)}
-              className="rounded-full bg-ink-50/80 px-2.5 py-1 text-[11px] text-ink-600 transition hover:bg-ink-100 hover:text-ink-900"
+              className="rounded-full bg-ink-50/80 px-2.5 py-1 text-[11px] text-ink-600 transition hover:bg-ink-100 hover:text-ink-900 dark:bg-ink-800/80 dark:text-ink-300 dark:hover:bg-ink-700 dark:hover:text-ink-50"
             >
               {suggestion}
             </button>

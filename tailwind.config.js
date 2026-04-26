@@ -1,14 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Paths are resolved against the CWD that runs PostCSS — i.e. apps/web/.
-  // Keeping the config at the monorepo root and the paths app-relative lets us
-  // grow the workspace without touching this file again.
+  darkMode: "class",
+  // Resolved from the PostCSS/Vite cwd (apps/web/), not the config file path.
   content: [
     "./index.html",
     "./main.tsx",
     "./src/**/*.{ts,tsx}",
   ],
   theme: {
+    screens: {
+      xs: "380px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+      /** Very small / watch-class viewports */
+      watch: { max: "280px" },
+    },
     extend: {
       colors: {
         ink: {
@@ -23,6 +32,7 @@ export default {
           700: "#334155",
           800: "#1E293B",
           900: "#0F172A",
+          950: "#020617",
         },
         brand: {
           DEFAULT: "#2563EB",
@@ -75,7 +85,10 @@ export default {
       },
       boxShadow: {
         soft: "0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06)",
+        "soft-dark":
+          "0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.35)",
         glow: "0 10px 40px -10px rgba(37, 99, 235, 0.35)",
+        "glow-dark": "0 10px 40px -10px rgba(37, 99, 235, 0.25)",
       },
       keyframes: {
         "fade-in": {
