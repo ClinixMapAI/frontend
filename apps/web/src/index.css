@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(201, 162, 75, 0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(11, 11, 15, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-gold-200 text-ink-900;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(11, 11, 15, 0.2) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(11, 11, 15, 0.18);
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(11, 11, 15, 0.32);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(11, 11, 15, 0.06) 0%,
+      rgba(11, 11, 15, 0.12) 40%,
+      rgba(11, 11, 15, 0.06) 80%
+    );
+    background-size: 800px 100%;
+    @apply animate-shimmer;
+  }
+}

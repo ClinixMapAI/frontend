@@ -1,0 +1,24 @@
+{
+  "name": "hacknation-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "HackNation healthcare intelligence frontend monorepo.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @hacknation/web",
+    "build": "npm run build --workspace @hacknation/web",
+    "preview": "npm run preview --workspace @hacknation/web",
+    "lint": "npm run lint --workspace @hacknation/web",
+    "typecheck": "npm run typecheck --workspace @hacknation/web"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.13",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

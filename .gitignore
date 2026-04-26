@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ----------------------
 
 # Python
@@ -110,3 +111,13 @@ Thumbs.db
 
 *.bak
 *.tmp
+=======
+node_modules/
+dist/
+.vite/
+.env
+.env.local
+.DS_Store
+*.log
+coverage/
+>>>>>>> 1fb2d05 ([arno] need to fix design)
