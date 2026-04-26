@@ -218,6 +218,7 @@ export default function DashboardPage() {
                 explanation={explanation}
                 keyword={keyword.trim()}
                 cacheRows={cacheRows}
+                facilities={facilities}
               />
             )}
           </AnimatePresence>

@@ -331,6 +331,120 @@ export function getRatingLabel(facility: Facility): string | null {
   return trimmed || null;
 }
 
+function readBooleanField(raw: Record<string, unknown> | undefined, keys: string[]): boolean | null {
+  if (!raw) return null;
+  const lower: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    lower[String(k).toLowerCase()] = v;
+  }
+  for (const key of keys) {
+    const v = lower[key.toLowerCase()];
+    if (v === true) return true;
+    if (v === false) return false;
+    if (typeof v === "string") {
+      const u = v.trim().toUpperCase();
+      if (u === "TRUE" || u === "1" || u === "YES" || u === "Y") return true;
+      if (u === "FALSE" || u === "0" || u === "NO" || u === "N") return false;
+    }
+    if (typeof v === "number" && Number.isFinite(v)) {
+      if (v === 1) return true;
+      if (v === 0) return false;
+    }
+  }
+  return null;
+}
+
+/** IDP-style capability flags from raw row (has_icu, has_oxygen, has_surgery, …). */
+export function getFacilityIdpCapabilityFlags(facility: Facility): {
+  icu: boolean | null;
+  oxygen: boolean | null;
+  surgery: boolean | null;
+} {
+  const raw = facility.raw as Record<string, unknown> | undefined;
+  return {
+    icu: readBooleanField(raw, ["has_icu", "has_icu_beds", "icu_available"]),
+    oxygen: readBooleanField(raw, ["has_oxygen", "oxygen_support", "oxygen_available"]),
+    surgery: readBooleanField(raw, ["has_surgery", "surgical_capability", "surgery_capability"]),
+  };
+}
+
+/** Confidence score 0–1 from IDP / AI fields. */
+export function getFacilityConfidenceScore(facility: Facility): number | null {
+  const direct = facility.confidence_score;
+  if (typeof direct === "number" && Number.isFinite(direct)) {
+    let n = direct;
+    if (n > 1 && n <= 100) n = n / 100;
+    if (n >= 0 && n <= 1) return n;
+  }
+  const raw = facility.raw as Record<string, unknown> | undefined;
+  if (raw) {
+    const n = readNumberFromRaw(raw, [
+      "confidence_score",
+      "confidence",
+      "ai_confidence",
+      "match_confidence",
+      "parsing_confidence",
+    ]);
+    if (n !== null) {
+      let x = n;
+      if (x > 1 && x <= 100) x = x / 100;
+      if (x >= 0 && x <= 1) return x;
+    }
+  }
+  return null;
+}
+
+export type ConfidenceTone = "high" | "moderate" | "low";
+
+export function getConfidencePresentation(score: number): {
+  label: string;
+  tone: ConfidenceTone;
+  pct: number;
+} {
+  const pct = Math.round(Math.min(1, Math.max(0, score)) * 1000) / 10;
+  if (score >= 0.8) return { label: "High", tone: "high", pct };
+  if (score >= 0.6) return { label: "Moderate", tone: "moderate", pct };
+  return { label: "Low", tone: "low", pct };
+}
+
+/** Inconsistency strings from structured IDP output or legacy single field. */
+export function getFacilityInconsistencies(facility: Facility): string[] {
+  const raw = facility.raw as Record<string, unknown> | undefined;
+  if (!raw) return [];
+  const lower: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    lower[String(k).toLowerCase()] = v;
+  }
+  const listKeys = ["inconsistencies", "inconsistency_list", "data_inconsistencies", "parsing_warnings"];
+  for (const key of listKeys) {
+    const v = lower[key];
+    if (Array.isArray(v)) {
+      return v.map((x) => String(x).trim()).filter(Boolean);
+    }
+    if (typeof v === "string" && v.trim().startsWith("[")) {
+      try {
+        const parsed = JSON.parse(v) as unknown;
+        if (Array.isArray(parsed)) {
+          return parsed.map((x) => String(x).trim()).filter(Boolean);
+        }
+      } catch {
+        /* fall through */
+      }
+    }
+  }
+  const single = lower["inconsistency"];
+  if (typeof single === "string" && single.trim()) return [single.trim()];
+
+  const comma = lower["inconsistencies"];
+  if (typeof comma === "string" && comma.includes(",")) {
+    return comma
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export function summarizeFacility(facility: Facility): string {
   const description =
     typeof facility.description === "string" && facility.description.trim()

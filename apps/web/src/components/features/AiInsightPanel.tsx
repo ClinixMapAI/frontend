@@ -2,8 +2,13 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 
 import { SparkleIcon } from "@/components/ui/icons";
+import type { Facility } from "@/types/facility";
+import {
+  getFacilityConfidenceScore,
+  getFacilityInconsistencies,
+} from "@/utils/format";
 
-const MAX_ARROWS = 5;
+const MAX_ARROWS = 6;
 const MAX_PHRASE_LEN = 96;
 
 function shortenPhrase(text: string): string {
@@ -18,17 +23,19 @@ function buildBullets(
   explanation: string,
   keyword: string,
   cacheRows: number | null,
-): { queryLine: string; arrows: string[] } {
+  facilities: Facility[] | undefined,
+): string[] {
   const q = keyword.trim();
-  const queryLine = q
-    ? `AI analyzed your query: "${q}"`
-    : "AI analyzed your search and ranking signals";
-  const arrows: string[] = [];
+  const bullets: string[] = [];
+
+  bullets.push(
+    q ? `Analyzed query: "${q}"` : "Analyzed your search and ranking signals",
+  );
 
   if (cacheRows != null && cacheRows > 0) {
-    arrows.push(
+    bullets.push(
       cacheRows >= 1000
-        ? `Filtered from ${cacheRows.toLocaleString()}+ healthcare records`
+        ? `Filtered from ${cacheRows.toLocaleString()}+ facilities`
         : `Scanned ${cacheRows.toLocaleString()} cached facility records`,
     );
   }
@@ -40,35 +47,58 @@ function buildBullets(
     .filter((s) => s.length > 12);
 
   for (const raw of sentences) {
-    if (arrows.length >= MAX_ARROWS) break;
+    if (bullets.length >= MAX_ARROWS) break;
     if (/^however\b/i.test(raw)) continue;
     let line = raw.charAt(0).toUpperCase() + raw.slice(1);
     line = shortenPhrase(line);
     const prefix = line.slice(0, 28);
-    if (arrows.some((a) => a.slice(0, 28) === prefix)) continue;
-    arrows.push(line);
+    if (bullets.some((a) => a.slice(0, 28) === prefix)) continue;
+    bullets.push(line);
   }
 
-  if (arrows.length === 0) {
-    arrows.push("Ranked matches using distance and quality score together");
+  if (facilities && facilities.length > 0) {
+    const scores = facilities
+      .map(getFacilityConfidenceScore)
+      .filter((n): n is number => n !== null);
+    if (scores.length >= 1 && bullets.length < MAX_ARROWS) {
+      const lo = Math.min(...scores);
+      const hi = Math.max(...scores);
+      bullets.push(
+        lo === hi
+          ? `Model confidence in this set: ${lo.toFixed(2)}`
+          : `Confidence ranges from ${lo.toFixed(2)} to ${hi.toFixed(2)}`,
+      );
+    }
+    const withInc = facilities.filter(
+      (f) => getFacilityInconsistencies(f).length > 0,
+    ).length;
+    if (withInc > 0 && bullets.length < MAX_ARROWS) {
+      bullets.push(
+        `⚠ Inconsistencies flagged in ${withInc} ${withInc === 1 ? "facility" : "facilities"}`,
+      );
+    }
   }
 
-  return { queryLine, arrows: arrows.slice(0, MAX_ARROWS) };
+  if (bullets.length < 3 && sentences.length === 0) {
+    bullets.push("Ranked top matches using distance, quality, and AI signals");
+  }
+
+  return bullets.slice(0, MAX_ARROWS);
 }
 
 const listContainer = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.06 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.05 },
   },
 };
 
 const listItem = {
-  hidden: { opacity: 0, y: 6 },
+  hidden: { opacity: 0, y: 5 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.28, ease: "easeOut" },
+    transition: { duration: 0.26, ease: "easeOut" },
   },
 };
 
@@ -76,16 +106,19 @@ interface AiInsightPanelProps {
   explanation: string;
   keyword: string;
   cacheRows: number | null;
+  /** When provided, adds aggregate confidence and inconsistency bullets. */
+  facilities?: Facility[];
 }
 
 export function AiInsightPanel({
   explanation,
   keyword,
   cacheRows,
+  facilities,
 }: AiInsightPanelProps) {
-  const { queryLine, arrows } = useMemo(
-    () => buildBullets(explanation, keyword, cacheRows),
-    [explanation, keyword, cacheRows],
+  const bullets = useMemo(
+    () => buildBullets(explanation, keyword, cacheRows, facilities),
+    [explanation, keyword, cacheRows, facilities],
   );
 
   return (
@@ -108,39 +141,38 @@ export function AiInsightPanel({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3 dark:border-white/10">
+            <span className="text-lg leading-none" aria-hidden>
+              🤖
+            </span>
             <h3 className="text-base font-semibold leading-tight tracking-tight text-slate-900 dark:text-white">
               AI Insight
             </h3>
           </div>
 
-          <motion.div
-            className="mt-4 space-y-2.5 text-sm leading-relaxed text-slate-700 dark:text-gray-300 sm:text-[15px] sm:leading-relaxed"
+          <motion.ul
+            className="mt-4 list-none space-y-2.5 p-0 text-sm leading-relaxed text-slate-700 dark:text-gray-300 sm:text-[15px] sm:leading-relaxed"
             variants={listContainer}
             initial="hidden"
             animate="show"
           >
-            <motion.p
-              variants={listItem}
-              className="font-medium text-slate-900 dark:text-white"
-            >
-              {queryLine}
-            </motion.p>
-            {arrows.map((line, i) => (
-              <motion.div
-                key={`${i}-${line.slice(0, 24)}`}
+            {bullets.map((line, i) => (
+              <motion.li
+                key={`${i}-${line.slice(0, 32)}`}
                 variants={listItem}
-                className="flex gap-3"
+                className="flex gap-2.5"
               >
                 <span
-                  className="mt-0.5 shrink-0 font-semibold text-brand-600 dark:text-brand-400"
+                  className="mt-0.5 shrink-0 font-medium text-brand-600 dark:text-brand-400"
                   aria-hidden
                 >
                   →
                 </span>
-                <span className="min-w-0">{line}</span>
-              </motion.div>
+                <span className="min-w-0 text-slate-800 dark:text-gray-200">
+                  {line}
+                </span>
+              </motion.li>
             ))}
-          </motion.div>
+          </motion.ul>
         </div>
       </div>
     </motion.section>

@@ -29,6 +29,8 @@ export interface Facility {
   trust_flag?: string | null;
   /** Short AI explanation of facility match (often comma-separated phrases). */
   explanation?: string | null;
+  /** IDP / model confidence for this row (0–1 or 0–100). */
+  confidence_score?: number | null;
   composite_score?: number;
   distance_km?: number;
   distance_score?: number;
