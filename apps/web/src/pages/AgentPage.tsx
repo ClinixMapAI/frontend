@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { Badge } from "@/components/ui/Badge";
 import { SparkleIcon } from "@/components/ui/icons";
 import { AgentChat } from "@/components/features/AgentChat";
@@ -7,7 +9,15 @@ export default function AgentPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-3">
         <div className="min-w-0">
-          <Badge tone="brand">
+          <p className="text-xs text-ink-500 dark:text-ink-400">
+            <Link
+              to="/agent"
+              className="font-medium text-brand-600 underline-offset-2 transition hover:underline dark:text-brand-400"
+            >
+              ← Why the AI agent
+            </Link>
+          </p>
+          <Badge tone="brand" className="mt-2">
             <SparkleIcon size={10} />
             AI Agent
           </Badge>

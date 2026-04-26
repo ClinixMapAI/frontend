@@ -8,6 +8,7 @@ import { FacilityDetailModal } from "./components/features/FacilityDetailModal";
 import { FacilityMapModal } from "./components/features/FacilityMapModal";
 
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const AgentIntroPage = lazy(() => import("./pages/AgentIntroPage"));
 const AgentPage = lazy(() => import("./pages/AgentPage"));
 
 function PageFallback() {
@@ -26,7 +27,8 @@ export default function App() {
         <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/agent" element={<AgentPage />} />
+            <Route path="/agent" element={<AgentIntroPage />} />
+            <Route path="/agent/chat" element={<AgentPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
