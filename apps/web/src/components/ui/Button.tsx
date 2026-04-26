@@ -15,17 +15,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const baseStyles =
   "inline-flex items-center justify-center gap-2 font-medium rounded-2xl transition " +
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 " +
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 " +
   "focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed " +
   "select-none whitespace-nowrap";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-ink-900 text-white hover:bg-ink-700 active:bg-ink-800 shadow-soft " +
-    "border border-ink-900/10",
+    "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-soft " +
+    "border border-brand-700/20",
   secondary:
-    "bg-gold-500 text-ink-900 hover:bg-gold-400 active:bg-gold-600 shadow-soft " +
-    "border border-gold-600/20",
+    "bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-700 shadow-soft " +
+    "border border-accent-600/20",
   ghost:
     "bg-transparent text-ink-700 hover:bg-ink-50 active:bg-ink-100 border border-transparent",
   outline:

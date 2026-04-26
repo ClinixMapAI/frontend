@@ -7,14 +7,12 @@ interface GeolocationState {
   error: string | null;
 }
 
-interface GeolocationResult {
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-}
+export type GeolocationRequestResult =
+  | { ok: true; latitude: number; longitude: number; accuracy: number }
+  | { ok: false; error: string };
 
 interface UseGeolocationReturn extends GeolocationState {
-  request: () => Promise<GeolocationResult | null>;
+  request: () => Promise<GeolocationRequestResult>;
   reset: () => void;
 }
 
@@ -33,21 +31,23 @@ export function useGeolocation(): UseGeolocationReturn {
     setState({ status: "idle", error: null });
   }, []);
 
-  const request = useCallback((): Promise<GeolocationResult | null> => {
+  const request = useCallback((): Promise<GeolocationRequestResult> => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      const err = "Geolocation is not available in this browser.";
       setState({
         status: "error",
-        error: "Geolocation is not available in this browser.",
+        error: err,
       });
-      return Promise.resolve(null);
+      return Promise.resolve({ ok: false, error: err });
     }
 
     setState({ status: "loading", error: null });
 
-    return new Promise<GeolocationResult | null>((resolve) => {
+    return new Promise<GeolocationRequestResult>((resolve) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const result: GeolocationResult = {
+          const result = {
+            ok: true as const,
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
@@ -63,7 +63,7 @@ export function useGeolocation(): UseGeolocationReturn {
                 ? "Location unavailable on this device."
                 : error.message || "Failed to read location.";
           setState({ status: "error", error: message });
-          resolve(null);
+          resolve({ ok: false, error: message });
         },
         { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 },
       );

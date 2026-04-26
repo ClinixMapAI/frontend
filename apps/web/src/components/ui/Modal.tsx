@@ -82,7 +82,7 @@ export function Modal({
             <button
               type="button"
               onClick={onClose}
-              className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+              className="-mr-2 -mt-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-500 transition hover:bg-ink-100 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-label="Close"
             >
               <svg

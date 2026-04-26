@@ -35,7 +35,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         }
       >
         {!isUser && (
-          <div className="mb-1 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-gold-700">
+          <div className="mb-1 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-brand-700">
             <SparkleIcon size={12} />
             AI Agent
           </div>
@@ -111,7 +111,7 @@ export function AgentChat() {
         <div className="flex h-[calc(100vh-14rem)] min-h-[520px] flex-col rounded-3xl border border-ink-100 bg-white shadow-soft">
           <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-ink-900 text-gold-400">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-600 text-white">
                 <SparkleIcon size={14} />
               </span>
               <div>
@@ -136,7 +136,7 @@ export function AgentChat() {
           >
             {messages.length === 0 && (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gold-50 text-gold-700 shadow-soft">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 shadow-soft">
                   <SparkleIcon size={20} />
                 </div>
                 <h3 className="mt-3 font-display text-lg font-semibold text-ink-900">
@@ -151,7 +151,7 @@ export function AgentChat() {
                     <button
                       key={suggestion}
                       onClick={() => submitQuery(suggestion)}
-                      className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs text-ink-700 transition hover:-translate-y-0.5 hover:border-gold-300 hover:text-ink-900 hover:shadow-soft"
+                      className="rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs text-ink-700 transition hover:-translate-y-0.5 hover:border-brand-300 hover:text-ink-900 hover:shadow-soft"
                     >
                       {suggestion}
                     </button>
@@ -176,7 +176,7 @@ export function AgentChat() {
             onSubmit={handleSubmit}
             className="border-t border-ink-100 p-3"
           >
-            <div className="flex items-end gap-2 rounded-2xl border border-ink-200 bg-white p-2 shadow-soft focus-within:border-ink-900 focus-within:ring-2 focus-within:ring-gold-200">
+            <div className="flex items-end gap-2 rounded-2xl border border-ink-200 bg-white p-2 shadow-soft focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200">
               <textarea
                 value={input}
                 onChange={(event) => setInput(event.target.value)}

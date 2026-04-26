@@ -7,7 +7,7 @@ export default function AgentPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <Badge tone="gold">
+          <Badge tone="brand">
             <SparkleIcon size={10} />
             AI Agent
           </Badge>

@@ -1,19 +1,16 @@
 import { create } from "zustand";
 
+import { DEFAULT_INDIAN_CITY } from "@/constants/indianCities";
 import type {
   ClientLocation,
   NearestSearchOptions,
 } from "@/types/nearest";
 
-/**
- * Default location used while we wait for the user to grant geolocation.
- * Bengaluru is a sensible hackathon default for the seeded dataset.
- */
 const DEFAULT_LOCATION: ClientLocation = {
-  latitude: 12.9716,
-  longitude: 77.5946,
+  latitude: DEFAULT_INDIAN_CITY.latitude,
+  longitude: DEFAULT_INDIAN_CITY.longitude,
   source: "default",
-  label: "Bengaluru (default)",
+  label: DEFAULT_INDIAN_CITY.label,
 };
 
 interface SearchState {
@@ -23,6 +20,8 @@ interface SearchState {
   limit: number;
   includeReasoning: boolean;
   location: ClientLocation;
+  /** When set, nearest search uses this for lat/lng so distances match the device. Cleared when user picks a city. */
+  deviceLocation: ClientLocation | null;
   isLocating: boolean;
   locationError: string | null;
 
@@ -32,6 +31,7 @@ interface SearchState {
   setLimit: (value: number) => void;
   setIncludeReasoning: (value: boolean) => void;
   setLocation: (location: ClientLocation) => void;
+  setDeviceLocation: (location: ClientLocation | null) => void;
   setLocating: (value: boolean) => void;
   setLocationError: (value: string | null) => void;
   resetFilters: () => void;
@@ -49,6 +49,7 @@ const initialFilters = {
 export const useSearchStore = create<SearchState>((set, get) => ({
   ...initialFilters,
   location: DEFAULT_LOCATION,
+  deviceLocation: null,
   isLocating: false,
   locationError: null,
 
@@ -70,15 +71,17 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   setIncludeReasoning: (value) => set({ includeReasoning: value }),
   setLocation: (location) =>
     set({ location, locationError: null, isLocating: false }),
+  setDeviceLocation: (deviceLocation) => set({ deviceLocation }),
   setLocating: (value) => set({ isLocating: value }),
   setLocationError: (value) => set({ locationError: value, isLocating: false }),
-  resetFilters: () => set({ ...initialFilters }),
+  resetFilters: () => set({ ...initialFilters, deviceLocation: null }),
 
   toOptions: (overrides) => {
     const state = get();
+    const origin = state.deviceLocation ?? state.location;
     return {
-      latitude: state.location.latitude,
-      longitude: state.location.longitude,
+      latitude: origin.latitude,
+      longitude: origin.longitude,
       radius_km: state.radiusKm ?? undefined,
       limit: state.limit,
       min_quality_score: state.minQualityScore ?? undefined,

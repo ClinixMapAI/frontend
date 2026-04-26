@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Loader";
 import {
+  ArrowRightIcon,
   FilterIcon,
   MapPinIcon,
-  RefreshIcon,
   SearchIcon,
 } from "@/components/ui/icons";
-import { useDebounce } from "@/hooks/useDebounce";
+import {
+  INDIAN_CITY_PRESETS,
+  matchPresetByCoordinates,
+} from "@/constants/indianCities";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useSearchStore } from "@/store/useSearchStore";
+import { cn } from "@/utils/cn";
+
+const LOCATION_GPS_SELECT_VALUE = "__gps__";
 
 const RADIUS_PRESETS = [
   { label: "Any", value: null },
@@ -23,220 +27,317 @@ const RADIUS_PRESETS = [
 
 const LIMIT_OPTIONS = [6, 12, 24, 48];
 
-interface SearchBarProps {
-  onForceRefresh?: () => void;
-  isRefreshing?: boolean;
-}
+const SUGGESTIONS = [
+  "ICU with oxygen",
+  "Child breathing problem",
+  "Cardiac emergency",
+  "Maternity care",
+  "Orthopedic surgery",
+];
 
-export function SearchBar({ onForceRefresh, isRefreshing }: SearchBarProps) {
+export function SearchBar() {
   const keyword = useSearchStore((state) => state.keyword);
   const radiusKm = useSearchStore((state) => state.radiusKm);
-  const minQualityScore = useSearchStore((state) => state.minQualityScore);
   const limit = useSearchStore((state) => state.limit);
   const location = useSearchStore((state) => state.location);
-  const isLocating = useSearchStore((state) => state.isLocating);
+  const deviceLocation = useSearchStore((state) => state.deviceLocation);
   const locationError = useSearchStore((state) => state.locationError);
 
   const setKeyword = useSearchStore((state) => state.setKeyword);
   const setRadiusKm = useSearchStore((state) => state.setRadiusKm);
-  const setMinQualityScore = useSearchStore((state) => state.setMinQualityScore);
   const setLimit = useSearchStore((state) => state.setLimit);
+
   const setLocation = useSearchStore((state) => state.setLocation);
+  const setDeviceLocation = useSearchStore((state) => state.setDeviceLocation);
   const setLocating = useSearchStore((state) => state.setLocating);
   const setLocationError = useSearchStore((state) => state.setLocationError);
-  const resetFilters = useSearchStore((state) => state.resetFilters);
 
-  const [localKeyword, setLocalKeyword] = useState(keyword);
-  const debouncedKeyword = useDebounce(localKeyword, 350);
+  // `inputValue` is the *local* draft the user is typing — changing it does
+  // NOT trigger a network call. The store's `keyword` is the actual query
+  // that drives `useNearestFacilities`, and is only updated on explicit
+  // submit (Enter, button click, or suggestion chip).
+  const [inputValue, setInputValue] = useState(keyword);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  const geo = useGeolocation();
+
+  /** Ask for the browser location once on load so distances use the user’s position when allowed. */
+  const hasRequestedInitialLocation = useRef(false);
   useEffect(() => {
-    if (debouncedKeyword !== keyword) {
-      setKeyword(debouncedKeyword);
+    if (hasRequestedInitialLocation.current) return;
+    hasRequestedInitialLocation.current = true;
+    setLocationError(null);
+    setLocating(true);
+    void geo.request().then((result) => {
+      if (result.ok) {
+        const loc = {
+          latitude: result.latitude,
+          longitude: result.longitude,
+          source: "browser" as const,
+          label: "Current location",
+        };
+        setDeviceLocation(loc);
+        setLocation(loc);
+      } else {
+        setLocating(false);
+        const denied =
+          result.error.toLowerCase().includes("denied") ||
+          result.error.toLowerCase().includes("permission");
+        if (!denied) {
+          setLocationError(result.error);
+        }
+      }
+    });
+    // Intentionally once on mount; geolocation prompt is triggered here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const locationSelectValue = useMemo(() => {
+    if (deviceLocation !== null || location.source === "browser") {
+      return LOCATION_GPS_SELECT_VALUE;
     }
-  }, [debouncedKeyword, keyword, setKeyword]);
+    const preset = matchPresetByCoordinates(
+      location.latitude,
+      location.longitude,
+    );
+    return preset?.id ?? INDIAN_CITY_PRESETS[0].id;
+  }, [deviceLocation, location.latitude, location.longitude, location.source]);
 
-  // Keep local input in sync if the store is reset elsewhere.
+  const handleCityChange = (value: string) => {
+    if (value === LOCATION_GPS_SELECT_VALUE) return;
+    const city = INDIAN_CITY_PRESETS.find((c) => c.id === value);
+    if (!city) return;
+    setDeviceLocation(null);
+    setLocation({
+      latitude: city.latitude,
+      longitude: city.longitude,
+      source: "manual",
+      label: city.label,
+    });
+  };
+
+  const handleUseCurrentLocation = async () => {
+    setLocationError(null);
+    setLocating(true);
+    const result = await geo.request();
+    if (result.ok) {
+      const loc = {
+        latitude: result.latitude,
+        longitude: result.longitude,
+        source: "browser" as const,
+        label: "Current location",
+      };
+      setDeviceLocation(loc);
+      setLocation(loc);
+    } else {
+      setLocating(false);
+      setLocationError(result.error);
+    }
+  };
+
+  // Keep the input in sync if the store's keyword is reset elsewhere
+  // (e.g. a "Clear filters" action).
   useEffect(() => {
-    if (keyword !== localKeyword && keyword === "") {
-      setLocalKeyword("");
+    if (keyword === "" && inputValue !== "") {
+      setInputValue("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword]);
 
-  const geo = useGeolocation();
+  const submitSearch = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      // [DEBUG] Submit attempted with empty input.
+      // eslint-disable-next-line no-console
+      console.debug("[search] submit ignored — empty input");
+      return;
+    }
+    // [DEBUG] User triggered a search.
+    // eslint-disable-next-line no-console
+    console.debug("[search] submit →", trimmed);
+    setKeyword(trimmed);
+  };
 
-  const handleDetectLocation = async () => {
-    setLocating(true);
-    const result = await geo.request();
-    if (result) {
-      setLocation({
-        latitude: result.latitude,
-        longitude: result.longitude,
-        source: "browser",
-        label: "Detected location",
-      });
-    } else {
-      setLocationError(geo.error ?? "Unable to detect location.");
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Submit only on plain Enter; let Shift+Enter pass through (no submit).
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      submitSearch(inputValue);
     }
   };
 
-  const filtersActive =
-    keyword.trim() !== "" ||
-    radiusKm !== null ||
-    minQualityScore !== null ||
-    limit !== 12;
+  const handleSuggestion = (value: string) => {
+    setInputValue(value);
+    submitSearch(value);
+    inputRef.current?.focus();
+  };
+
+  const trimmedInput = inputValue.trim();
+  const showSuggestions = trimmedInput.length === 0;
+  const hasPendingChange =
+    trimmedInput.length > 0 && trimmedInput !== keyword.trim();
+  const canSubmit = trimmedInput.length > 0;
+  const isGeoLoading = geo.status === "loading";
 
   return (
-    <div className="rounded-3xl border border-ink-100 bg-white/90 p-4 shadow-soft backdrop-blur sm:p-5">
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
-        <Input
-          containerClassName="lg:col-span-5"
-          placeholder="Search by specialty, procedure, name, or city…"
-          value={localKeyword}
-          onChange={(event) => setLocalKeyword(event.target.value)}
-          leftIcon={<SearchIcon size={16} />}
-          aria-label="Keyword"
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 px-1 text-[11px]">
+        <span className="shrink-0 text-ink-400">Location</span>
+        <div className="relative min-w-0 flex-1 basis-[160px] sm:max-w-[220px]">
+          <MapPinIcon
+            size={10}
+            className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+          <select
+            value={locationSelectValue}
+            onChange={(event) => handleCityChange(event.target.value)}
+            className="w-full cursor-pointer appearance-none rounded-full bg-transparent py-0.5 pl-7 pr-6 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80"
+            aria-label="Search near city"
+          >
+            {(deviceLocation !== null || location.source === "browser") && (
+              <option value={LOCATION_GPS_SELECT_VALUE}>
+                Current location (device)
+              </option>
+            )}
+            {INDIAN_CITY_PRESETS.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.label}
+              </option>
+            ))}
+          </select>
+          <FilterIcon
+            size={9}
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => void handleUseCurrentLocation()}
+          disabled={isGeoLoading}
+          className={cn(
+            "inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 font-medium transition",
+            isGeoLoading
+              ? "cursor-wait bg-ink-100 text-ink-400"
+              : "bg-brand-50 text-brand-700 hover:bg-brand-100",
+          )}
+          aria-label="Use my current location"
+        >
+          {isGeoLoading ? (
+            <Spinner size={12} />
+          ) : (
+            <MapPinIcon size={12} />
+          )}
+          <span className="whitespace-nowrap">My location</span>
+        </button>
+      </div>
+      {location.source === "default" &&
+        !deviceLocation &&
+        !locationError && (
+        <p className="px-1 text-[11px] text-ink-400">
+          Allow location when your browser asks so distances match where you are.
+        </p>
+      )}
+      {locationError && (
+        <p className="px-1 text-[11px] text-red-600">{locationError}</p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-[11px]">
+        <span className="text-ink-400">Within</span>
+        {RADIUS_PRESETS.map((preset) => {
+          const active = radiusKm === preset.value;
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => setRadiusKm(preset.value)}
+              className={cn(
+                "rounded-full px-2 py-0.5 font-medium transition",
+                active
+                  ? "bg-ink-900 text-white"
+                  : "text-ink-500 hover:bg-ink-100/80 hover:text-ink-800",
+              )}
+            >
+              {preset.label}
+            </button>
+          );
+        })}
+
+        <span className="mx-1 text-ink-200" aria-hidden>
+          ·
+        </span>
+
+        <span className="text-ink-400">Show</span>
+        <div className="relative">
+          <select
+            value={limit}
+            onChange={(event) => setLimit(Number(event.target.value))}
+            className="cursor-pointer appearance-none rounded-full bg-transparent px-2 py-0.5 pr-5 text-[11px] font-medium text-ink-600 outline-none transition hover:bg-ink-100/80 hover:text-ink-800 focus:bg-ink-100/80"
+            aria-label="Result limit"
+          >
+            {LIMIT_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                Top {option}
+              </option>
+            ))}
+          </select>
+          <FilterIcon
+            size={9}
+            className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+        </div>
+      </div>
+
+      <div className="group relative w-full">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 transition group-focus-within:text-ink-700">
+          <SearchIcon size={18} />
+        </span>
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Describe your medical need…"
+          aria-label="Search"
+          enterKeyHint="search"
+          className={cn(
+            "min-h-[52px] w-full rounded-xl bg-transparent",
+            "pl-11 pr-12 text-base text-ink-900 placeholder:text-ink-400",
+            "outline-none transition",
+            "focus:bg-white/60",
+          )}
         />
-
-        <div className="lg:col-span-4">
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500">
-            Search radius
-          </label>
-          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-ink-200 bg-white p-1.5 shadow-soft">
-            {RADIUS_PRESETS.map((preset) => {
-              const active = radiusKm === preset.value;
-              return (
-                <button
-                  type="button"
-                  key={preset.label}
-                  onClick={() => setRadiusKm(preset.value)}
-                  className={
-                    active
-                      ? "rounded-full bg-ink-900 px-3 py-1 text-xs font-medium text-white shadow-soft"
-                      : "rounded-full px-3 py-1 text-xs font-medium text-ink-600 transition hover:bg-ink-50"
-                  }
-                >
-                  {preset.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="lg:col-span-3">
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500">
-            Show
-          </label>
-          <div className="flex h-11 items-center rounded-2xl border border-ink-200 bg-white px-3.5 shadow-soft focus-within:border-ink-900 focus-within:ring-2 focus-within:ring-gold-200">
-            <FilterIcon size={16} className="text-ink-400" />
-            <select
-              value={limit}
-              onChange={(event) => setLimit(Number(event.target.value))}
-              className="ml-2 w-full bg-transparent text-sm text-ink-900 outline-none"
-              aria-label="Result limit"
-            >
-              {LIMIT_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  Top {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        <button
+          type="button"
+          aria-label="Search"
+          onClick={() => submitSearch(inputValue)}
+          disabled={!canSubmit}
+          className={cn(
+            "absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2",
+            "place-items-center rounded-lg transition",
+            canSubmit
+              ? hasPendingChange
+                ? "bg-brand-600 text-white shadow-glow hover:bg-brand-700"
+                : "bg-brand-600 text-white hover:bg-brand-700"
+              : "bg-ink-100 text-ink-400",
+          )}
+        >
+          <ArrowRightIcon size={16} />
+        </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-500">
-            Min. quality score
-          </label>
-          <div className="flex items-center gap-3 rounded-2xl border border-ink-200 bg-white px-3.5 py-2 shadow-soft">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={minQualityScore ?? 0}
-              onChange={(event) => {
-                const value = Number(event.target.value);
-                setMinQualityScore(value <= 0 ? null : value);
-              }}
-              className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-ink-100 accent-ink-900"
-              aria-label="Minimum quality score"
-            />
-            <span className="font-mono text-xs tabular-nums text-ink-700">
-              {minQualityScore !== null ? minQualityScore.toFixed(2) : "off"}
-            </span>
-          </div>
-        </div>
-
-        <div className="lg:col-span-5">
-          <label className="mb-1.5 flex items-center justify-between text-xs font-medium uppercase tracking-wide text-ink-500">
-            <span>Search center</span>
-            <span className="font-mono text-[10px] normal-case text-ink-400">
-              {location.latitude.toFixed(3)}, {location.longitude.toFixed(3)}
-            </span>
-          </label>
-          <div className="flex items-center gap-2 rounded-2xl border border-ink-200 bg-white px-3 py-2 shadow-soft">
-            <MapPinIcon
-              size={16}
-              className={
-                location.source === "browser" ? "text-emerald-600" : "text-ink-400"
-              }
-            />
-            <span className="flex-1 truncate text-xs text-ink-700">
-              {location.label ??
-                (location.source === "browser"
-                  ? "Detected location"
-                  : "Default location")}
-            </span>
-            <Button
-              size="sm"
-              variant={location.source === "browser" ? "outline" : "secondary"}
-              onClick={handleDetectLocation}
-              isLoading={isLocating}
-              leftIcon={
-                isLocating ? (
-                  <Spinner size={12} />
-                ) : (
-                  <MapPinIcon size={12} />
-                )
-              }
+      {showSuggestions && (
+        <div className="flex flex-wrap items-center gap-1.5 px-1 pt-0.5">
+          {SUGGESTIONS.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => handleSuggestion(suggestion)}
+              className="rounded-full bg-ink-50/80 px-2.5 py-1 text-[11px] text-ink-600 transition hover:bg-ink-100 hover:text-ink-900"
             >
-              {location.source === "browser" ? "Update" : "Use my location"}
-            </Button>
-          </div>
-          {locationError && (
-            <p className="mt-1.5 text-[11px] text-amber-700">{locationError}</p>
-          )}
-        </div>
-      </div>
-
-      {(filtersActive || onForceRefresh) && (
-        <div className="mt-3 flex items-center justify-end gap-2">
-          {onForceRefresh && (
-            <Button
-              variant="ghost"
-              size="sm"
-              leftIcon={<RefreshIcon size={14} />}
-              isLoading={isRefreshing}
-              onClick={onForceRefresh}
-            >
-              Re-sync data
-            </Button>
-          )}
-          {filtersActive && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                resetFilters();
-                setLocalKeyword("");
-              }}
-            >
-              Clear filters
-            </Button>
-          )}
+              {suggestion}
+            </button>
+          ))}
         </div>
       )}
     </div>

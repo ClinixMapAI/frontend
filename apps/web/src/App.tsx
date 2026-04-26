@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { Loader } from "./components/ui/Loader";
 import { FacilityDetailModal } from "./components/features/FacilityDetailModal";
+import { FacilityMapModal } from "./components/features/FacilityMapModal";
 
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const AgentPage = lazy(() => import("./pages/AgentPage"));
@@ -27,6 +28,7 @@ export default function App() {
         </Routes>
       </Suspense>
       <FacilityDetailModal />
+      <FacilityMapModal />
     </AppShell>
   );
 }

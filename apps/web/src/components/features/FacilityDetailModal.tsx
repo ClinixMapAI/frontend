@@ -68,7 +68,7 @@ function AnalysisBody({ analysis }: { analysis: string }) {
               key={section.title}
               className="rounded-2xl border border-ink-100 bg-white p-4 shadow-soft"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gold-700">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-700">
                 {section.title}
               </p>
               <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-700">
@@ -160,7 +160,7 @@ export function FacilityDetailModal() {
               AI Score
             </p>
             <p className="mt-1 flex items-center gap-1.5 font-mono text-2xl font-semibold text-ink-900">
-              <ChartIcon size={18} className="text-gold-600" />
+              <ChartIcon size={18} className="text-accent-600" />
               {formatScore(score)}
             </p>
           </div>
@@ -169,7 +169,7 @@ export function FacilityDetailModal() {
               Rating
             </p>
             <p className="mt-1 inline-flex items-center gap-1.5 font-display text-lg font-semibold text-ink-900">
-              <StarIcon size={16} className="text-gold-500" />
+              <StarIcon size={16} className="text-accent-500" />
               {rating ?? "—"}
             </p>
           </div>
@@ -193,7 +193,7 @@ export function FacilityDetailModal() {
           {specialties.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {specialties.map((item) => (
-                <Badge key={item} tone="gold">
+                <Badge key={item} tone="brand">
                   {item}
                 </Badge>
               ))}
@@ -203,14 +203,14 @@ export function FacilityDetailModal() {
 
         <section>
           <div className="mb-2 flex items-center gap-2">
-            <SparkleIcon size={16} className="text-gold-600" />
+            <SparkleIcon size={16} className="text-brand-600" />
             <h3 className="font-display text-sm font-semibold uppercase tracking-wider text-ink-500">
               AI analysis
             </h3>
           </div>
 
           {analyzeMutation.isPending && (
-            <div className="rounded-2xl border border-dashed border-gold-200 bg-gold-50/40 p-6">
+            <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/60 p-6">
               <Loader label="Generating a structured analysis with the LLM…" />
             </div>
           )}

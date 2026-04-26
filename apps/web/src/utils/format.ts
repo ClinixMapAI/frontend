@@ -69,6 +69,36 @@ export function getFacilityDistanceKm(facility: Facility): number | null {
   return null;
 }
 
+function readNumeric(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+export function getFacilityCoordinates(
+  facility: Facility,
+): { lat: number; lng: number } | null {
+  const candidates: Array<[unknown, unknown]> = [
+    [facility.latitude, facility.longitude],
+    [
+      (facility.raw as Record<string, unknown> | undefined)?.latitude,
+      (facility.raw as Record<string, unknown> | undefined)?.longitude,
+    ],
+    [facility.lat, facility.lng],
+  ];
+  for (const [latRaw, lngRaw] of candidates) {
+    const lat = readNumeric(latRaw);
+    const lng = readNumeric(lngRaw);
+    if (lat !== null && lng !== null) {
+      return { lat, lng };
+    }
+  }
+  return null;
+}
+
 export function formatDistanceKm(km: number | null): string {
   if (km === null) return "";
   if (km < 1) return `${(km * 1000).toFixed(0)} m`;

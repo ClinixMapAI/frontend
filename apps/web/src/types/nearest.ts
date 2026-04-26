@@ -10,8 +10,11 @@ export interface NearestFacility {
   city: string;
   state: string;
   country: string;
+  /** Point used for distance and mapping (same as DB when `location_source` is `precise`, else city centroid). */
   latitude: number | null;
   longitude: number | null;
+  /** `precise` = from dataset; `city_centroid` = approximate city center when DB had no coordinates. */
+  location_source?: "precise" | "city_centroid";
   rating: string;
   quality_score: number | null;
   year_established: number | null;
@@ -49,6 +52,8 @@ export interface NearestSearchResponse {
   };
   results: NearestFacility[];
   explanation: string | null;
+  /** Set when a filter was removed so the list is not empty (see backend /api/facilities/nearest/). */
+  search_note?: string | null;
 }
 
 export interface ClientLocation {

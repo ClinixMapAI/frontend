@@ -10,15 +10,15 @@
   }
 
   body {
-    @apply bg-ink-50 text-ink-900 font-sans;
+    @apply bg-brand-50 text-ink-900 font-sans;
     background-image:
-      radial-gradient(1200px 600px at 80% -10%, rgba(201, 162, 75, 0.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(11, 11, 15, 0.05), transparent 60%);
+      radial-gradient(1200px 600px at 80% -10%, rgba(37, 99, 235, 0.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(16, 185, 129, 0.06), transparent 60%);
     background-attachment: fixed;
   }
 
   ::selection {
-    @apply bg-gold-200 text-ink-900;
+    @apply bg-brand-100 text-ink-900;
   }
 }
 

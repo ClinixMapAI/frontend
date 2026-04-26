@@ -47,10 +47,25 @@ function cleanOptions(options: NearestSearchOptions): Record<string, unknown> {
 export async function searchNearestFacilities(
   options: NearestSearchOptions,
 ): Promise<NearestSearchResponse> {
+  const body = cleanOptions(options);
+
+  // [DEBUG] Outgoing request payload — remove once search is verified end-to-end.
+  // eslint-disable-next-line no-console
+  console.debug("[search] →", "/api/facilities/nearest/", body);
+
   const { data } = await api.post<NearestSearchResponse>(
     "/api/facilities/nearest/",
-    cleanOptions(options),
+    body,
   );
+
+  // [DEBUG] Inbound response shape — remove once search is verified end-to-end.
+  // eslint-disable-next-line no-console
+  console.debug("[search] ←", {
+    resultsCount: Array.isArray(data?.results) ? data.results.length : 0,
+    cacheRows: data?.cache?.rows ?? null,
+    explanationPresent: typeof data?.explanation === "string",
+    raw: data,
+  });
 
   return {
     client_location: data?.client_location ?? EMPTY_RESPONSE.client_location,
@@ -60,6 +75,10 @@ export async function searchNearestFacilities(
     explanation:
       typeof data?.explanation === "string" || data?.explanation === null
         ? data.explanation
+        : null,
+    search_note:
+      typeof data?.search_note === "string" || data?.search_note === null
+        ? (data?.search_note ?? null)
         : null,
   };
 }
