@@ -36,6 +36,18 @@ jobs:
               git reset --hard origin/main
               git clean -fd
 
-              echo "Reloading server..."
+
+              echo "Installing dependencies and building..."
+              npm ci
+              npm run build
+
+              echo "Moving built files to Nginx public folder..."
+              sudo mkdir -p /var/www/frontend
+              
+              sudo rm -rf /var/www/frontend/*
+              
+              sudo cp -r apps/web/dist/* /var/www/frontend/
+
+              echo "Reloading Nginx..."
               sudo systemctl reload nginx
             EOSSH
